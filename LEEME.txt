@@ -1,0 +1,38 @@
+MANOS QUE HABLAN · versión 2 (seguridad en el servidor)
+
+INSTALAR (sobre una carpeta NUEVA; haz copia de tu base de datos antes)
+1. Descomprime el ZIP. Copia tu carpeta de imágenes a public\img (logo, banner y señas).
+2. Abre PowerShell dentro de la carpeta y ejecuta:  npm install
+3. Copia .env.example como .env (Copy-Item .env.example .env) y complétalo con tus datos.
+   - ADMIN_PASSWORD: mínimo 12 caracteres.
+   - SESSION_SECRET: mínimo 32 caracteres.
+4. Base de datos NUEVA: importa schema.sql. Base existente: no hace falta; al iniciar, el servidor agrega lo que falta
+   (columna names, columna pw_changed, tabla password_resets, contraseñas más largas).
+5. npm test   (pruebas de permisos y seguridad)   y   npm start
+6. Abre http://localhost:3000 y recarga con Ctrl+F5 (cambió el código del navegador).
+
+QUÉ CAMBIÓ
+- Inicio de sesión y registro en el servidor. Las contraseñas se guardan con scrypt y sal; las antiguas (SHA-256) se
+  convierten solas la primera vez que la persona inicia sesión. El navegador ya NO recibe contraseñas ni hashes.
+- Cada petición lleva un token firmado (12 horas, por pestaña). Sin token solo se ve la pantalla de ingreso.
+- El servidor autoriza cada guardado: no se puede escribir en nombre de otra persona, ni editar, borrar o leer chats,
+  solicitudes, glosarios o presencia ajenos. El administrador no lee los mensajes de los chats.
+- Recuperación de contraseña verificada: enlace de un solo uso, válido 15 minutos, guardado solo como hash; al usarlo se
+  cierran las sesiones anteriores. Con SMTP configurado se envía por correo; sin SMTP el enlace aparece en la terminal del
+  servidor (quien administra la instalación se lo entrega a la persona).
+- Límite de intentos en ingreso, registro y recuperación.
+- Videollamadas por WebSocket (/ws) entre dispositivos; solo entre personas que comparten un chat.
+- La publicación de ejemplo y el administrador se crean en el servidor. Si el administrador aún tenía la contraseña pública
+  de la versión demo, se reemplaza con ADMIN_PASSWORD.
+- Errores corregidos: el aviso «Error de conexión» nunca aparecía; la sincronización podía pisar cambios recién hechos;
+  nombres de chat y membresías se sobrescribían entre dispositivos; el texto original de un mensaje «eliminado para todos»
+  seguía guardado.
+
+LÍMITES (léelos)
+- Es un prototipo educativo. Para publicarlo en internet falta HTTPS con un dominio, copias de seguridad, TURN para
+  videollamadas entre redes distintas y una revisión de seguridad externa.
+- Por defecto escucha solo en 127.0.0.1 (este equipo). Cámara/micrófono en OTRO dispositivo exigen HTTPS (TLS_KEY_FILE y
+  TLS_CERT_FILE) y HOST=0.0.0.0, sabiendo que así se expone en la red.
+- Las pruebas incluidas verifican las reglas de permisos y seguridad con una base simulada. No sustituyen probar con MySQL real,
+  navegadores, cámara y micrófono.
+- Las señas y frases LSC siguen requiriendo validación con la comunidad sorda y el INSOR.

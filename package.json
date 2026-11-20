@@ -1,0 +1,20 @@
+{
+  "name": "manos-que-hablan",
+  "version": "2.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/rules.test.js",
+    "check": "node --check server.js && node --check lib/security.js && node --check lib/rules.js && node --check lib/dao.js && node --check public/js/app.js && node --check public/js/db.js && node --check public/js/dialogs.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "mysql2": "^3.11.5",
+    "ws": "^8.18.0",
+    "nodemailer": "^6.9.16"
+  }
+}
